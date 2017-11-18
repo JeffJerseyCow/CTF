@@ -11,7 +11,7 @@ instance find three values that satisfy the following contraint that also contai
 **0xfaf56837 = 0x0 - 0x11014342 - 0x77050408 - 0x7d04507f**
 
 This problems is easy to understand — yet difficult to solve. I use the z3 engine from Microsoft
-for mathematically proove satisfiablity of the problem.
+for mathematically prove satisfiablity of the problem.
 
 Usage: **./shellcode_encody.py 0x12345678**
 
