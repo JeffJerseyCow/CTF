@@ -14,3 +14,6 @@ This problems is easy to understand — yet difficult to solve. I use the z3 eng
 for mathematically proove satisfiablity of the problem.
 
 Usage: **./shellcode_encody.py 0x12345678**
+
+The only requirment is z3. Please follow the guide here to install it with Python bindings:
+https://github.com/Z3Prover/z3
