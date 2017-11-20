@@ -13,4 +13,4 @@ instance find three values that satisfy the following contraint that also contai
 This problems is easy to understand — yet difficult to solve. I use the z3 engine from Microsoft
 for mathematically proove satisfiablity of the problem.
 
-Usage: **./shellcode_encody.py 0x12345678**
+Usage: **./shellcode_encody.py 0x123e56f8**

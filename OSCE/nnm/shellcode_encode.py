@@ -33,7 +33,7 @@ def main():
         return False
 
     # Debug
-    print('[*] Using Value {}'.format(hex(value)))
+    print('[*] Solving Value {}'.format(hex(value)))
 
     # Calculate Difference
     diff = 0xffffffff - value + 1
@@ -43,7 +43,6 @@ def main():
 
     # Value Already Valid
     if is_valid(s, value):
-        print('[*] Sat')
         print('[*] Push {}'.format(hex(value)))
 
         # Success
@@ -51,56 +50,54 @@ def main():
 
     # Diff Already Valid
     if is_valid(s, diff):
-        print('[*] Sat')
-        print('[*] 0x0 - {} = {}'.format(hex(diff), hex(value)))
+        print('[*] num0:\t{}'.format(diff))
+        print('[*] value:\t{}'.format(value))
 
         # Success
         return True
 
-    # Symbols
-    num0 = z3.BitVec('num0', 32)
-    num1 = z3.BitVec('num1', 32)
-    num2 = z3.BitVec('num2', 32)
+    # Loop Counter
+    count = 0
 
-    # Constraints Good Characters
-    add_chrs(s, num0)
-    add_chrs(s, num1)
-    add_chrs(s, num2)
+    # List of z3 BitVecs
+    nums = [z3.BitVec('num{}'.format(count), 32)]
 
-    # Add Width Constraints
-    s.add(num0 >= 0x10000000)
-    s.add(num1 >= 0x10000000)
-    s.add(num2 >= 0x10000000)
+    # Loop Until Solved
+    while True:
+        count += 1
 
-    # Add Addition Constraints
-    s.add(num0 + num1 + num2 == diff)
+        # Debug
+        print('[*] Trying {} numbers'.format(count + 1))
 
-    # Sat
-    if s.check() == z3.sat:
-       
-        # Get Model
-        m = s.model()
-        num0 = m[num0].as_long()
-        num1 = m[num1].as_long()
-        num2 = m[num2].as_long()
-        total = (num0 + num1 + num2) & 0xffffffff
+        # Add New BitVec
+        nums.append(z3.BitVec('num{}'.format(count), 32))
 
-        # Output
-        print('[*] Sat')
-        print('[*] 0x0 - {} - {} - {} = {}'.format(
-            hex(num0),
-            hex(num1),
-            hex(num2),
-            hex(abs(total - 1 - 0xffffffff))))
+        # New State
+        s.push()
 
-        # Success
-        return True
+        # Constraints Nums
+        total = None
 
-    # Unsat
-    else:
-        print('[*] Unsat')
+        # Add Constraints
+        for num in nums:
+            add_chrs(s, num)
+            s.add(num >= 0x10000000)
 
-        return False
+        # Addition Constraint
+        s.add(z3.Sum([num for num in nums]) == diff)
+
+        # Check Sat
+        if s.check() == z3.sat:
+            # Get Model
+            m = s.model()
+
+            # Print
+            pmodel(m)
+
+            return True
+
+        # Remove State
+        s.pop()
 
 def add_chrs(s, num):
     """
@@ -125,14 +122,14 @@ def add_chrs(s, num):
     clist = [x for x in range(256)]
     flist = filter(lambda c: chr(c) not in valid_chars, clist)
 
-    # Constrains Loop
+    # Constraints Loop
     for val in flist:
         val0 = val
         val8 = val << 8
         val16 = val << 16
         val24 = val << 24
 
-        # Add Constrains
+        # Add Constraints
         s.add(num & 0xff != val0)
         s.add(num & 0xff00 != val8)
         s.add(num & 0xff0000 != val16)
@@ -156,8 +153,6 @@ def is_valid(s, num):
 
     # Sat
     if s.check() == z3.sat:
-
-        # Success
         return True
 
     # Unsat 
@@ -165,10 +160,35 @@ def is_valid(s, num):
         s.pop()    
         return False
 
+def pmodel(m):
+    """
+    Extracts values from z3 model and prints solutions.
+
+    Args:
+        m: z3 models that's been satified.
+    """
+
+    total = 0
+    count = 0
+
+    for num in m:
+        numv = m[num].as_long()
+        total += numv
+        print('[*] num{}:\t{}'.format(count, hex(numv)))
+        count += 1
+
+    # Remove Carry
+    total &= 0xffffffff
+
+    print('[*] value:\t{}'.format(hex(abs(total - 1 - 0xffffffff))))
+
 
 if __name__ == '__main__':
     """
     Exit on main return code.
     """
 
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        print('[*] Exiting')
