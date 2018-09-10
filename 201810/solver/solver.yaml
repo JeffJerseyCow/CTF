@@ -1,0 +1,44 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: solver
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: solver
+  template:
+    metadata:
+      labels:
+        app: solver
+    spec:
+      containers:
+      - name: solver
+        image: jeffjerseycow/solver:201810
+        ports:
+        - name: web-proxy
+          containerPort: 8080
+      - name: crypto-web
+        image: jeffjerseycow/solver-web:201810
+        ports:
+        - name: http
+          containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: solver-service
+spec:
+  selector:
+    app: solver
+  ports:
+  - name: web-proxy
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
+
