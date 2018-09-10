@@ -1,0 +1,44 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: crypto
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: crypto
+  template:
+    metadata:
+      labels:
+        app: crypto
+    spec:
+      containers:
+      - name: crypto
+        image: jeffjerseycow/crypto:201810
+        ports:
+        - name: radius
+          containerPort: 1812
+      - name: crypto-web
+        image: jeffjerseycow/crypto-web:201810
+        ports:
+        - name: http
+          containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: crypto-service
+spec:
+  selector:
+    app: crypto
+  ports:
+  - name: radius
+    protocol: TCP
+    port: 1812
+    targetPort: 1812
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer
+
