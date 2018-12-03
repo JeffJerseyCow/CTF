@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
+import os
 import sys
-import struct
 import socket
-import string
 from multiprocessing import Process
-
-FLAG = b'{c14c1a78b99fcd9c23875986107748f5}\n'
 
 def div_3(conn, num):
     if (num % 0x3) != 0:
@@ -82,7 +79,7 @@ def send_banner(conn):
               'must not be prime\n'.encode())
     conn.send(b'#> ')
 
-def handle_conn(conn, addr):
+def handle_conn(conn, addr, flag):
     send_banner(conn)
     num = conn.recv(1024).decode().strip()
     try:
@@ -98,16 +95,20 @@ def handle_conn(conn, addr):
     if not is_div17_11(conn, num): return False
     if not is_prime_pos(conn, num): return False
     if not is_nine(conn, num): return False
-    conn.send(FLAG)
+    conn.send(flag.encode())
     conn.close()
 
 def main():
+    flag = os.getenv('SOLVER_FLAG')
+    if not flag:
+        print('Please set the SOLVER_FLAG environmental variable')
+        return False
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.bind(('', 8080))
     s.listen(10)
     while True:
         conn, addr = s.accept()
-        p = Process(target=handle_conn, args=(conn, addr))
+        p = Process(target=handle_conn, args=(conn, addr, flag))
         p.start()
 
 if __name__ == '__main__':

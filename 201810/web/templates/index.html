@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+{% block content %}
+<header class="header" id="header">
+	<div class="container">
+		<h1 class="animated fadeInDown delay-05s">Welcome</h1>
+		<h2 class="animated fadeInDown delay-05s">realserver and rstp services are out of scope</h2>
+		<br />
+		<h4 class="animated fadeInDown delay-05s">crypto: {{ crypto_addr }}</h4><br />
+		<h4 class="animated fadeInDown delay-05s">solver: {{ solver_addr }}</h4><br />
+		<h4 class="animated fadeInDown delay-05s">revenge: {{ revenge_addr }}</h4><br />
+		<br />
+		<div class="wow fadeInUp delay-03s">
+			<div class="form">
+				<div id="sendmessage">Your message has been sent. Thank you!</div>
+				<div id="errormessage"></div>
+				<form action="{{ url_for('check_flag') }}" method="post" role="form" class="contactForm">
+					<div class="form-group">
+						<input type="text" name="name" class="form-control input-text" id="name" placeholder="name" data-rule="minlen:4" data-msg="Please enter at least 4 chars" />
+						<div class="validation"></div>
+					</div>
+					<div class="form-group">
+						<input type="email" class="form-control input-text" name="email" id="email" placeholder="email" data-rule="email" data-msg="Please enter a valid email" />
+						<div class="validation"></div>
+					</div>
+					<div class="form-group">
+						<input type="text" class="form-control input-text" name="flag" id="flag" placeholder="flag" data-rule="minlen:4" data-msg="Please enter a a valid flag" />
+						<div class="validation"></div>
+					</div>
+					<div class="text-center"><button type="submit" class="input-btn">submit</button></div>
+				</form>
+			</div>
+		</div>
+	</div>
+</header>
+{% endblock %}

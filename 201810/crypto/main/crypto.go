@@ -3,12 +3,10 @@ package main
 import (
   "os"
   "net"
+  "fmt"
   "time"
   "math/rand"
 )
-
-// flag
-const flag = "{0c1b61a6febf2d12d86f5d5c8f933c19}"
 
 // checck errors
 func check(err error) {
@@ -55,6 +53,12 @@ func handleConnection(conn net.Conn, block []byte, flag string) {
 
 // entry point
 func main() {
+  // get flag
+  flag := os.Getenv("CRYPTO_FLAG")
+  if len(flag) == 0 {
+    fmt.Println("Please set the CRYPTO_FLAG environmental variable")
+    os.Exit(-1)
+  }
 
   // set-up socket
   service := ":1812"

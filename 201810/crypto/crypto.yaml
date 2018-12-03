@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: crypto
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: crypto
@@ -14,12 +14,18 @@ spec:
     spec:
       containers:
       - name: crypto
-        image: jeffjerseycow/crypto:201810
+        image: jeffjerseycow/crypto:201810-v0.0.2
         ports:
         - name: radius
           containerPort: 1812
+        env:
+        - name: CRYPTO_FLAG
+          valueFrom:
+            secretKeyRef:
+              name: flags
+              key: crypto
       - name: crypto-web
-        image: jeffjerseycow/crypto-web:201810
+        image: jeffjerseycow/crypto-web:201810-v0.0.1
         ports:
         - name: http
           containerPort: 80
@@ -41,4 +47,3 @@ spec:
     port: 80
     targetPort: 80
   type: LoadBalancer
-

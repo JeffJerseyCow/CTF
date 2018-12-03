@@ -1,31 +1,31 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: solver
+  name: revenge
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: solver
+      app: revenge
   template:
     metadata:
       labels:
-        app: solver
+        app: revenge
     spec:
       containers:
-      - name: solver
-        image: jeffjerseycow/solver:201810-v0.0.2
+      - name: revenge
+        image: jeffjerseycow/revenge:201810-v0.0.7
         ports:
-        - name: web-proxy
-          containerPort: 8080
+        - name: alt-https
+          containerPort: 8443
         env:
-        - name: SOLVER_FLAG
+        - name: REVENGE_FLAG
           valueFrom:
             secretKeyRef:
               name: flags
-              key: solver
-      - name: crypto-web
-        image: jeffjerseycow/solver-web:201810-v0.0.1
+              key: revenge
+      - name: revenge-web
+        image: jeffjerseycow/revenge-web:201810-v0.0.6
         ports:
         - name: http
           containerPort: 80
@@ -33,15 +33,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: solver-service
+  name: revenge-service
 spec:
   selector:
-    app: solver
+    app: revenge
   ports:
-  - name: web-proxy
+  - name: alt-https
     protocol: TCP
-    port: 8080
-    targetPort: 8080
+    port: 8443
+    targetPort: 8443
   - name: http
     protocol: TCP
     port: 80

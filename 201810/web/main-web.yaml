@@ -1,0 +1,104 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: main-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: main-web
+  template:
+    metadata:
+      labels:
+        app: main-web
+    spec:
+      volumes:
+      - name: keys
+        secret:
+          secretName: keys
+          items:
+          - key: file
+            path: file
+          - key: keyFile
+            path: keyFile
+          - key: chainFile
+            path: chainFile
+      containers:
+      - name: main-web
+        image: jeffjerseycow/main-web:201810-v0.0.9
+        ports:
+        - name: https
+          containerPort: 443
+        ports:
+        - name: http
+          containerPort: 80
+        volumeMounts:
+        - name: keys
+          mountPath: "/data/keys"
+          readOnly: true
+        env:
+        - name: CRYPTO_FLAG
+          valueFrom:
+            secretKeyRef:
+              name: flags
+              key: crypto
+        - name: SOLVER_FLAG
+          valueFrom:
+            secretKeyRef:
+              name: flags
+              key: solver
+        - name: REVENGE_FLAG
+          valueFrom:
+            secretKeyRef:
+              name: flags
+              key: revenge
+        - name: SOLVER_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: flask
+              key: solver_addr
+        - name: CRYPTO_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: flask
+              key: crypto_addr
+        - name: REVENGE_ADDR
+          valueFrom:
+            secretKeyRef:
+              name: flask
+              key: revenge_addr
+        - name: MAIL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: flask
+              key: mail_username
+        - name: MAIL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: flask
+              key: mail_password
+        - name: EMAILS
+          valueFrom:
+            secretKeyRef:
+              name: flask
+              key: emails
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: main-web-service
+spec:
+  selector:
+    app: main-web
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  ports:
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  type: LoadBalancer
+  loadBalancerIP: 35.228.175.85
